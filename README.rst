@@ -30,6 +30,18 @@ Features
 
 * TODO
 
+
+Coming Soon
+-----------
+
+This is what is planned:
+
+* Refactoring of Chests and Secrets
+* Command line to manage Chests and Secrets, and introspect audit data
+* Clearer instructions and best-practices around how to organize projects, chests, and secrets.
+* Tests? Need to figure out how to test GCP stuff better. Maybe use ``get_kms_client`` mocking.
+
+
 Credits
 ---------
 
