@@ -1,6 +1,6 @@
-===============================
+========
 Aletheia
-===============================
+========
 
 
 .. image:: https://img.shields.io/pypi/v/aletheia.svg
@@ -43,7 +43,7 @@ This is what is planned:
 
 
 Credits
----------
+-------
 
 Inspired by _`a post by mediocrity`_ about building an app on Google AppEngine.
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
