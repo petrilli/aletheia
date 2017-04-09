@@ -13,7 +13,7 @@ Steps
 1. Create project (you may want to put the storage buckets in a different
    proejct).
 2. Create users
-   - User 1: Manager
+  - User 1: Manager
      - ``roles/cloudkms.admin``
    - User 2: Consumer
      - ``roles/cloudkms.cryptoKeyEncrypterDecrypter``, or if you want them to
