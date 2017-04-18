@@ -1,10 +1,10 @@
 """Secret Storage in Google Cloud Platform
 
-This module implements the core functionality of secret storage inside the 
+This module implements the core functionality of secret storage inside the
 Google Cloud Platform.  It is built on several Google components:
 
 * Google Cloud Storage - holds the actual encrypted secrets
-* Google Key Management Service - manages crypto keys and performs 
+* Google Key Management Service - manages crypto keys and performs
   encryption/decryption
 * Google IAM - Manages who gets access to what.
 
@@ -20,9 +20,9 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseUpload
 from six.moves import StringIO
 
+
 ALETHEIA_CONTENT_TYPE = 'application/x-aletheia-secret'
 ALETHEIA_METADATA_KEY = 'x-aletheia-secret-key'
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -167,7 +167,7 @@ class Chest(object):
 
 class SimpleSecret(object):
     """Something we don't want everyone to know about.
-   
+
     A Secret is where we do most of the work.
 
     Attributes:
@@ -204,13 +204,13 @@ class SimpleSecret(object):
         If we don't already have a copy of the plaintext, we will perform the
         initial decryption and cache a copy.  This copy exists for the life of
         the object.
-        
+
         Note: The reason we do not bind this to ``__str__`` or similar is that
         we do not want the secret to be accidentally disclosed. Instead, by
         naming it ``plaintext``, we ensure the caller knows what they want.
-        
+
         Returns:
-          str: The plaintext representation of the secret. 
+          str: The plaintext representation of the secret.
         """
         if self._plaintext is None:
             self._plaintext = self.decrypt()
@@ -218,10 +218,10 @@ class SimpleSecret(object):
         return self._plaintext
 
     def decrypt(self):
-        """Decrypt the secret. 
-        
+        """Decrypt the secret.
+
         All secrets are stored in base64 format, so we clear that first.
-        
+
         Returns:
           str: The plaintext.
         """
@@ -237,9 +237,9 @@ class SimpleSecret(object):
 
     def __str__(self):
         """Python dunder representation.
-        
+
         The representation includes an indicator if it's encrypted or not.
-        
+
         Returns:
           str: Handy representation of the Secret
         """
