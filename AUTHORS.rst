@@ -10,4 +10,5 @@ Development Lead
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Drew Rothstein <drothstein@twitter.com>
+  The original inspiration for the project.
