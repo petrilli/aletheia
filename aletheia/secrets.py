@@ -228,7 +228,7 @@ class SimpleSecret(object):
         # Base64 encoded response
         return base64.b64decode(response['plaintext'])
 
-    def __repr__(self):
+    def __str__(self):
         """Python dunder representation.
         
         The representation includes an indicator if it's encrypted or not.
