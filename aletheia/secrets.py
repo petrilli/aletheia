@@ -10,16 +10,15 @@ Google Cloud Platform.  It is built on several Google components:
 
 The design makes no assumptions as to the internal structure of the secret.
 However, because of the limitations of Google KMS, the secret should not be
-more than 
+more than 64kiB.
 """
 import base64
-from cStringIO import StringIO
 import logging
 
 import googleapiclient.discovery as gcp_discovery
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseUpload
-
+from six.moves import StringIO
 
 ALETHEIA_CONTENT_TYPE = 'application/x-aletheia-secret'
 ALETHEIA_METADATA_KEY = 'x-aletheia-secret-key'
@@ -163,7 +162,7 @@ class Chest(object):
         ).execute()
 
         return SimpleSecret(name=name, ciphertext=ciphertext,
-                            kms_keyname=self.keyname, __plaintext=secret)
+                            kms_keyname=self.keyname, _plaintext=secret)
 
 
 class SimpleSecret(object):
@@ -174,10 +173,10 @@ class SimpleSecret(object):
     Attributes:
         _ciphertext (str): The local storage copy of the ciphertext
         _kms_keyname (str): Route in Cloud KMS
-        __plaintext (str|None): Plaintext cache copy of the secret, or
+        _plaintext (str|None): Plaintext cache copy of the secret, or
             None if it's not been resolved yet.
     """
-    def __init__(self, name, ciphertext, kms_keyname, __plaintext=None):
+    def __init__(self, name, ciphertext, kms_keyname, _plaintext=None):
         """Create a new secret.
 
         Initially, the secret is stored only as encrypted ciphertext. It's
@@ -188,13 +187,13 @@ class SimpleSecret(object):
             name (str): The name of the secret.
             ciphertext (str): Encrypted ciphertext.
             kms_keyname (str): "Route" in Cloud KMS
-            __plaintext (str|None): Pre-populated plaintext. This is only used
+            _plaintext (str|None): Pre-populated plaintext. This is only used
                 when creating a new Secret from scratch through the Chest.
         """
         self.name = name
         self._ciphertext = ciphertext
         self._kms_keyname = kms_keyname
-        self._plaintext = __plaintext
+        self._plaintext = _plaintext
 
         super(SimpleSecret, self).__init__()
 

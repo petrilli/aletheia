@@ -12,7 +12,8 @@ Contents:
    usage
    costs
    contributing
-   authorshistory
+   authors
+   history
 
 Indices and tables
 ==================

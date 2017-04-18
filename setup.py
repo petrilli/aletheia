@@ -12,6 +12,7 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'Click>=6.0',
     'google-api-python-client>=1.6',
+    'six>=1.10',
 ]
 
 test_requirements = [
