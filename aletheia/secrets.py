@@ -1,4 +1,12 @@
-# -*- coding: utf-8 -*-
+"""Secret Storage in Google Cloud Platform
+
+This module implements the core functionality of secret storage inside the Google Cloud Platform.
+It is built on several Google components:
+
+* Google Cloud Storage - holds the actual encrypted secrets
+* Google Key Management Service - manages crypto keys and performs encryption/decryption
+* Google IAM - Manages who gets access to what.
+"""
 import base64
 from cStringIO import StringIO
 import logging
@@ -12,12 +20,12 @@ ALETHEIA_CONTENT_TYPE = 'application/x-aletheia-secret'
 ALETHEIA_METADATA_KEY = 'x-aletheia-secret-key'
 
 
-log = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def get_kms_client():
     """Returns a Google Cloud Key Management Service client.
-    
+
     Returns:
       gcp_discovery.Resource: A dynamic client.
     """
@@ -35,14 +43,14 @@ def get_cs_client():
 
 class Chest(object):
     """A chest of secrets.
-    
+
     This object contains a complete set of secrets for a project usually.
     """
 
     def __init__(self, project_id, chest, bucket, location='global',
                  keyring='aletheia'):
         """Create a new chest.
-        
+
         Args:
             chest (str): The name of the secret chest we want to use. This
                 is often the GCP project ID. It is also the name of the key
@@ -83,13 +91,13 @@ class Chest(object):
 
     def get(self, name):
         """Get the provided secret name.
-        
+
         Args:
             name (str): The name of the secret.
-        
+
         Returns:
             Secret: A Secret.
-        
+
         Raises:
             ValueError: A ValueError means that a secret with the provided
                 name does not exist.
@@ -116,15 +124,15 @@ class Chest(object):
 
     def create(self, name, secret):
         """Create a new Secret in the chest.
-        
+
         Args:
             name (str): The name of the secret. Can be path-like.
             secret (str): The secret itself. It is passed in as a str because
                 it is assumed to be reasonably small, as it's not designed
                 for managing large secrets.
-        
+
         Returns:
-            Secert: An initialized secret
+            Secret: An initialized secret
         """
         # First, encrypt it
         kms_client = get_kms_client()
@@ -132,7 +140,6 @@ class Chest(object):
         ciphertext = crypto.encrypt(name=self.keyname, body={
             'plaintext': base64.b64encode(secret)
         }).execute()
-
 
         # Now store it
         cs_client = get_cs_client()
@@ -159,18 +166,18 @@ class Secret(object):
     """
     def __init__(self, name, ciphertext, kms_keyname, __plaintext=None):
         """Create a new secret.
-        
+
         Initially, the secret is stored only as encrypted ciphertext. It's
-        not until you first try and access it that it will decrypt itself, 
+        not until you first try and access it that it will decrypt itself,
         and then cache a copy of that for future reference.
-        
+
         Args:
             name (str): The name of the secret.
             ciphertext (str): Encrypted ciphertext.
             kms_keyname (str): "Route" in Cloud KMS
-            __plaintext (str|None): Pre-populated plaintext. This is only used 
-                when creating a new Secret from scratch through the Chest. 
-        
+            __plaintext (str|None): Pre-populated plaintext. This is only used
+                when creating a new Secret from scratch through the Chest.
+
         Attributes:
             _ciphertext (str): The local storage copy of the ciphertext
             _kms_keyname (str): Route in Cloud KMS
@@ -187,7 +194,7 @@ class Secret(object):
     @property
     def plaintext(self):
         """Return the plaintext version of the secret.
-        
+
         If we don't already have a copy of the plaintext, we will perform the
         initial decryption and cache a copy.
         """
