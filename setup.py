@@ -16,7 +16,8 @@ requirements = [
 ]
 
 test_requirements = [
-    # TODO: put package test requirements here
+    'pytest>=3.0',
+    'pytest-mocker>=1.6'
 ]
 
 setup(
