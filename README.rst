@@ -45,7 +45,7 @@ This is what is planned:
 Credits
 -------
 
-Inspired by _`a post by mediocrity`_ about building an app on Google AppEngine.
+Inspired by `a post by mediocrity`_ about building an app on Google AppEngine.
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
 .. _`a post by mediocrity`: https://medium.com/@mediocrity/from-idea-to-deployed-on-gcp-in-24hrs-927eaf8a5939
