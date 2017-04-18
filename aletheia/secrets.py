@@ -204,6 +204,13 @@ class SimpleSecret(object):
         If we don't already have a copy of the plaintext, we will perform the
         initial decryption and cache a copy.  This copy exists for the life of
         the object.
+        
+        Note: The reason we do not bind this to ``__str__`` or similar is that
+        we do not want the secret to be accidentally disclosed. Instead, by
+        naming it ``plaintext``, we ensure the caller knows what they want.
+        
+        Returns:
+          str: The plaintext representation of the secret. 
         """
         if self._plaintext is None:
             self._plaintext = self.decrypt()
