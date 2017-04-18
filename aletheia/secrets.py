@@ -163,6 +163,14 @@ class Chest(object):
 
 class Secret(object):
     """Something we don't want everyone to know about.
+   
+    A Secret is where we do most of the work.
+
+    Attributes:
+        _ciphertext (str): The local storage copy of the ciphertext
+        _kms_keyname (str): Route in Cloud KMS
+        __plaintext (str|None): Plaintext cache copy of the secret, or
+            None if it's not been resolved yet.
     """
     def __init__(self, name, ciphertext, kms_keyname, __plaintext=None):
         """Create a new secret.
@@ -177,17 +185,11 @@ class Secret(object):
             kms_keyname (str): "Route" in Cloud KMS
             __plaintext (str|None): Pre-populated plaintext. This is only used
                 when creating a new Secret from scratch through the Chest.
-
-        Attributes:
-            _ciphertext (str): The local storage copy of the ciphertext
-            _kms_keyname (str): Route in Cloud KMS
-            __plaintext (str|None): Plaintext cache copy of the secret, or
-                None if it's not been resolved yet.
         """
         self.name = name
         self._ciphertext = ciphertext
         self._kms_keyname = kms_keyname
-        self.__plaintext = __plaintext
+        self._plaintext = __plaintext
 
         super(Secret, self).__init__()
 
@@ -198,12 +200,16 @@ class Secret(object):
         If we don't already have a copy of the plaintext, we will perform the
         initial decryption and cache a copy.
         """
-        if self.__plaintext is None:
+        if self._plaintext is None:
             self._decrypt()
 
-        return self.__plaintext
+        return self._plaintext
 
     def _decrypt(self):
+        """Perform actual decryption on demand of the secret.
+        
+        Note that this caches the plaintext for the life of the object.
+        """
         kms_client = get_kms_client()
         crypto = kms_client.projects().locations().keyRings().cryptoKeys()
         request = crypto.decrypt(name=self._kms_keyname, body={
@@ -211,7 +217,17 @@ class Secret(object):
         })
         response = request.execute()
         # Base64 encoded response
-        self.__plaintext = base64.b64decode(response['plaintext'])
+        self._plaintext = base64.b64decode(response['plaintext'])
 
     def __repr__(self):
-        return "Secret(name='{}')".format(self.name)
+        """Python dunder representation.
+        
+        The representation includes an indicator if it's encrypted or not.
+        
+        Returns:
+          str: Handy representation of the Secret
+        """
+        return "Secret(name='{name}', {status})".format(
+            name=self.name,
+            status="cleartext" if self._plaintext else "encrypted"
+        )
