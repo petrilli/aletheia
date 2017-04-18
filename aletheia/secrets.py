@@ -16,6 +16,11 @@ log = logging.getLogger(__name__)
 
 
 def get_kms_client():
+    """Returns a Google Cloud Key Management Service client.
+    
+    Returns:
+      gcp_discovery.Resource: A dynamic client.
+    """
     return gcp_discovery.build('cloudkms', 'v1')
 
 
