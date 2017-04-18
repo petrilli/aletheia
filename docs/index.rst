@@ -10,6 +10,7 @@ Contents:
    installation
    quickstart
    usage
+   costs
    contributing
    authorshistory
 

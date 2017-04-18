@@ -1,11 +1,16 @@
 """Secret Storage in Google Cloud Platform
 
-This module implements the core functionality of secret storage inside the Google Cloud Platform.
-It is built on several Google components:
+This module implements the core functionality of secret storage inside the 
+Google Cloud Platform.  It is built on several Google components:
 
 * Google Cloud Storage - holds the actual encrypted secrets
-* Google Key Management Service - manages crypto keys and performs encryption/decryption
+* Google Key Management Service - manages crypto keys and performs 
+  encryption/decryption
 * Google IAM - Manages who gets access to what.
+
+The design makes no assumptions as to the internal structure of the secret.
+However, because of the limitations of Google KMS, the secret should not be
+more than 
 """
 import base64
 from cStringIO import StringIO
@@ -96,7 +101,7 @@ class Chest(object):
             name (str): The name of the secret.
 
         Returns:
-            Secret: A Secret.
+            SimpleSecret: A Secret.
 
         Raises:
             ValueError: A ValueError means that a secret with the provided
@@ -113,8 +118,8 @@ class Chest(object):
                 ALETHEIA_METADATA_KEY in secret_metadata['metadata']):
             request = cs_client.objects().get_media(
                 bucket=self.bucket, object=name)
-            return Secret(name, request.execute(),
-                          secret_metadata['metadata'][ALETHEIA_METADATA_KEY])
+            return SimpleSecret(name, request.execute(),
+                                secret_metadata['metadata'][ALETHEIA_METADATA_KEY])
         else:
             raise ValueError(
                 "{} does not have the correct content type or key set".format(
@@ -132,7 +137,7 @@ class Chest(object):
                 for managing large secrets.
 
         Returns:
-            Secret: An initialized secret
+            SimpleSecret: An initialized secret
         """
         # First, encrypt it
         kms_client = get_kms_client()
@@ -157,11 +162,11 @@ class Chest(object):
             }
         ).execute()
 
-        return Secret(name=name, ciphertext=ciphertext,
-                      kms_keyname=self.keyname, __plaintext=secret)
+        return SimpleSecret(name=name, ciphertext=ciphertext,
+                            kms_keyname=self.keyname, __plaintext=secret)
 
 
-class Secret(object):
+class SimpleSecret(object):
     """Something we don't want everyone to know about.
    
     A Secret is where we do most of the work.
@@ -191,24 +196,28 @@ class Secret(object):
         self._kms_keyname = kms_keyname
         self._plaintext = __plaintext
 
-        super(Secret, self).__init__()
+        super(SimpleSecret, self).__init__()
 
     @property
     def plaintext(self):
         """Return the plaintext version of the secret.
 
         If we don't already have a copy of the plaintext, we will perform the
-        initial decryption and cache a copy.
+        initial decryption and cache a copy.  This copy exists for the life of
+        the object.
         """
         if self._plaintext is None:
-            self._decrypt()
+            self._plaintext = self.decrypt()
 
         return self._plaintext
 
-    def _decrypt(self):
-        """Perform actual decryption on demand of the secret.
+    def decrypt(self):
+        """Decrypt the secret. 
         
-        Note that this caches the plaintext for the life of the object.
+        All secrets are stored in base64 format, so we clear that first.
+        
+        Returns:
+          str: The plaintext.
         """
         kms_client = get_kms_client()
         crypto = kms_client.projects().locations().keyRings().cryptoKeys()
@@ -216,8 +225,9 @@ class Secret(object):
             'ciphertext': self._ciphertext
         })
         response = request.execute()
+
         # Base64 encoded response
-        self._plaintext = base64.b64decode(response['plaintext'])
+        return base64.b64decode(response['plaintext'])
 
     def __repr__(self):
         """Python dunder representation.
