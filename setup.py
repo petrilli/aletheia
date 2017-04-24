@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from setuptools import setup
 
 with open('README.rst') as readme_file:
@@ -17,7 +15,7 @@ requirements = [
 
 test_requirements = [
     'pytest>=3.0',
-    'pytest-mocker>=1.6'
+    'pytest-mock>=1.6',
 ]
 
 setup(
@@ -31,12 +29,13 @@ setup(
     packages=[
         'aletheia',
     ],
-    package_dir={'aletheia':
-                 'aletheia'},
+    package_dir={
+        'aletheia': 'aletheia',
+    },
     entry_points={
         'console_scripts': [
-            'aletheia=aletheia.cli:main'
-        ]
+            'aletheia=aletheia.cli:main',
+        ],
     },
     include_package_data=True,
     install_requires=requirements,
@@ -53,5 +52,5 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     test_suite='tests',
-    tests_require=test_requirements
+    tests_require=test_requirements,
 )

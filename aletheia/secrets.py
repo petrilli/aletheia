@@ -220,7 +220,7 @@ class SimpleSecret(object):
     def decrypt(self):
         """Decrypt the secret.
 
-        All secrets are stored in base64 format, so we clear that first.
+        All secrets are stored in base64 format, so we unwrap that first.
 
         Returns:
           str: The plaintext.
@@ -232,11 +232,10 @@ class SimpleSecret(object):
         })
         response = request.execute()
 
-        # Base64 encoded response
         return base64.b64decode(response['plaintext'])
 
     def __str__(self):
-        """Python dunder representation.
+        """Python string representation.
 
         The representation includes an indicator if it's encrypted or not.
 
